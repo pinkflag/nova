@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <script src="https://static.novacredit.com/connect/v2/init.js"></script>
+</head>
+
+<body>
+  <h1>
+    <%= title %>
+  </h1>
+  <div style="text-align: left;"><img src="illus-car-loan.png" width="100" alt="My Image" /></div>
+  <p>Welcome to your loan application. Please proceed to send us your foreign credit history.
+  </p>
+  <div id="nova-embed"></div>
+  <script>
+    window.Nova.register({
+      env: 'sandbox',
+      publicId: 'bc0bca47315830d44f4204785101e491ceec40bcbb636ab242d3b56e3928bb40',
+      productId: '4279b800-759a-11ed-8776-8fde6b22e930',
+      onSuccess: function (publicToken, status) {
+        // Applicant has completed NovaConnect and a webhook will be called
+        console.log(publicToken);
+        console.log(status);
+        // Make a call to generate Credit Passport
+        fetch("http://localhost:3000/creditpass/", {
+          method: "post",
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            publicToken: publicToken
+          })
+        })
+          .then((response) => {
+            console.log('Successfully generated and submitted!')
+          });
+      },
+      onExit: function () {
+        // Applicant exited the NovaConnect widget
+        console.log('Applicant exited NovaConnect');
+      },
+      onError: function (publicToken, error) {
+        // Applicant was unable to complete NovaConnect
+        console.log(publicToken);
+        if (error === 'UNSUPPORTED_COUNTRY') {
+          console.log('Applicant entered an unsupported country');
+        } else {
+          console.log('Applicant encountered an internal error');
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
